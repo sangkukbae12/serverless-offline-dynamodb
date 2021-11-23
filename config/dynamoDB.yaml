@@ -1,0 +1,16 @@
+usersTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: users
+    AttributeDefinitions:
+      - AttributeName: email
+        AttributeType: S
+    KeySchema:
+      - AttributeName: email
+        KeyType: HASH
+    TimeToLiveSpecification:
+      AttributeName: "ttl"
+      Enabled: true
+    ProvisionedThroughput:
+      ReadCapacityUnits: 1
+      WriteCapacityUnits: 1
