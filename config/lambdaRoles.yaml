@@ -1,0 +1,44 @@
+LambdaRole:
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: serverless-app-${opt:region, 'ap-northeast-2'}-lambdaRole
+    AssumeRolePolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+            Action: sts:AssumeRole
+    Policies:
+      - PolicyName: serverless-app-${opt:region, 'ap-northeast-2'}-LambdaPutBucketNotificationPolicy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - "s3:PutBucketNotification"
+              Resource:
+                - "*"
+    ManagedPolicyArns:
+      - Ref: DynamoDBAccessPolicy
+      - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+      - arn:aws:iam::aws:policy/AmazonVPCFullAccess
+
+DynamoDBAccessPolicy:
+  Type: AWS::IAM::ManagedPolicy
+  Properties:
+    PolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Effect: Allow
+          Action:
+            - "dynamodb:Query"
+            - "dynamodb:Scan"
+            - "dynamodb:GetItem"
+            - "dynamodb:PutItem"
+            - "dynamodb:UpdateItem"
+            - "dynamodb:DeleteItem"
+          Resource:
+            - !GetAtt UsersTable.Arn
+      
