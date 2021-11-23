@@ -1,0 +1,61 @@
+service: serverless-offline-dynamodb
+frameworkVersion: '2'
+
+custom:
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+  webpack:
+    webpackConfig: './webpack.config.js'
+    packager: 'npm'
+    includeModules:
+      forceExclude:
+        - aws-sdk
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-dotenv-plugin
+  - serverless-webpack
+  - serverless-offline
+
+provider:
+  name: aws
+  region: ${opt:region, 'ap-northeast-2'}
+  runtime: nodejs12.x
+  memorySize: 512
+  role: LambdaRole
+  versionFunctions: false
+  deploymentBucket:
+    blockPublicAccess: true
+
+package:
+  individually: true
+
+functions:
+  createUser:
+    handler: handler.createUser
+    events:
+      - http:
+          path: user
+          method: post
+          cors: true
+
+  getUser:
+    handler: handler.getUser
+    events:
+      - http:
+          path: user
+          method: get
+          cors: true
+
+resources:
+  - Resources: ${file(./config/dynamoDB.yaml)}
+  - Resources: ${file(./config/lambdaRoles.yaml)}
